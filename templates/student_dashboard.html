@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Student Dashboard</title>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(
+        135deg,
+        #023047,
+        #006D77,
+        #00B4D8
+    );
+    color:white;
+}
+
+.container{
+    width:90%;
+    max-width:1400px;
+    margin:auto;
+    padding:40px 0;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:40px;
+}
+
+.header h1{
+    font-size:2rem;
+    font-weight:600;
+}
+
+.logout-btn{
+    text-decoration:none;
+    background:#ef233c;
+    color:white;
+    padding:12px 22px;
+    border-radius:10px;
+    transition:.3s;
+}
+
+.logout-btn:hover{
+    background:#d90429;
+}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:30px;
+}
+
+.card h2{
+    margin-bottom:15px;
+}
+
+.card p{
+    color:#e0f7fa;
+    margin-bottom:20px;
+}
+
+.session-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:20px;
+}
+
+.session-card{
+    background:rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:20px;
+    transition:.3s;
+}
+
+.session-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 15px 30px rgba(0,0,0,.25);
+}
+
+.session-title{
+    font-size:1.15rem;
+    font-weight:600;
+    margin-bottom:15px;
+}
+
+.join-btn{
+    text-decoration:none;
+    background:#00B4D8;
+    color:white;
+    padding:10px 18px;
+    border-radius:10px;
+    display:inline-block;
+    transition:.3s;
+}
+
+.join-btn:hover{
+    background:#48CAE4;
+}
+
+.empty-message{
+    text-align:center;
+    font-size:1.1rem;
+    color:#e0f7fa;
+}
+
+@media (max-width:768px){
+
+    .header{
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
+    }
+
+    .session-grid{
+        grid-template-columns:1fr;
+    }
+
+    .header h1{
+        font-size:1.5rem;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>
+            Welcome, {{ current_user.username }}
+        </h1>
+
+        <a href="{{ url_for('logout') }}"
+            class="logout-btn">
+            Logout
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Student Dashboard</h2>
+
+        <p>
+            You will see all assigned whiteboard sessions here.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Available Sessions</h2>
+
+        {% if sessions %}
+
+        <div class="session-grid">
+
+            {% for session in sessions %}
+
+            <div class="session-card">
+
+                <div class="session-title">
+                    {{ session.session_name }}
+                </div>
+
+                <a href="/student/session/{{ session.id }}"
+                    class="join-btn">
+                    Join Session
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-message">
+            No active sessions available.
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

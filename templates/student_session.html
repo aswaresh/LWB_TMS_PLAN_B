@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Session</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(
+        135deg,
+        #023047,
+        #006D77,
+        #00B4D8
+    );
+    padding:30px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.title{
+    color:white;
+    font-size:2rem;
+    font-weight:600;
+}
+
+.buttons{
+    display:flex;
+    gap:12px;
+}
+
+.back-btn,
+.logout-btn{
+    text-decoration:none;
+    color:white;
+    padding:12px 20px;
+    border-radius:10px;
+}
+
+.back-btn{
+    background:#00B4D8;
+}
+
+.logout-btn{
+    background:#ef233c;
+}
+
+.info-card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:20px;
+    color:white;
+}
+
+.board-container{
+    background:white;
+    border-radius:20px;
+    padding:15px;
+    box-shadow:0 15px 30px rgba(0,0,0,.25);
+}
+
+canvas{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:15px;
+    border:2px solid #ddd;
+}
+
+@media(max-width:768px){
+
+    .header{
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
+    }
+
+    .buttons{
+        flex-direction:column;
+        width:100%;
+    }
+
+    .back-btn,
+    .logout-btn{
+        text-align:center;
+    }
+
+    .title{
+        font-size:1.5rem;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <div class="title">
+            Student Session {{ session_id }}
+        </div>
+
+        <div class="buttons">
+
+            <a href="{{ url_for('student_dashboard') }}"
+               class="back-btn">
+                Back
+            </a>
+
+            <a href="{{ url_for('logout') }}"
+               class="logout-btn">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="info-card">
+
+        <h3>Live Whiteboard Session</h3>
+
+        <p>
+            Waiting for updates from the teacher.
+        </p>
+
+    </div>
+
+    <div class="board-container">
+
+        <canvas
+            id="board"
+            width="1000"
+            height="600">
+        </canvas>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+const socket = io();
+
+socket.emit("join_session", {
+    session_id: {{ session_id }}
+});
+
+const canvas = document.getElementById("board");
+const ctx = canvas.getContext("2d");
+
+socket.on("draw", function(data){
+
+    ctx.fillStyle = "black";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        data.x1,
+        data.y1
+    );
+
+    ctx.lineTo(
+        data.x2,
+        data.y2
+    );
+
+    ctx.strokeStyle = data.color;
+    ctx.lineWidth = data.size;
+    ctx.lineCap = "round";
+
+    ctx.stroke();
+});
+
+socket.on("clear_board", function() {
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+});
+
+socket.on("board_update", function(data){
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    data.history.forEach(function(stroke){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            stroke.x1,
+            stroke.y1
+        );
+
+        ctx.lineTo(
+            stroke.x2,
+            stroke.y2
+        );
+
+        ctx.strokeStyle = stroke.color;
+        ctx.lineWidth = stroke.size;
+
+        ctx.stroke();
+    });
+});
+
+</script>
+</body>
+</html>

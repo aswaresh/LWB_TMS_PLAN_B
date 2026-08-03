@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Whiteboard</title>
+
+<style>
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body{
+    min-height: 100vh;
+    background: linear-gradient(
+        135deg,
+        #023047,
+        #006D77,
+        #00B4D8
+    );
+    padding: 30px;
+}
+
+.container{
+    max-width: 1400px;
+    margin: auto;
+}
+
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.title{
+    color: white;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.back-btn{
+    text-decoration: none;
+    background: #ef233c;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+}
+
+.toolbar{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:20px;
+    padding:20px;
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+
+    margin-bottom:20px;
+}
+
+.toolbar label{
+    color:white;
+    font-size:14px;
+    font-weight:500;
+}
+
+.toolbar-group{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.toolbar select{
+    border:none;
+    border-radius:10px;
+    padding:10px 12px;
+    background:white;
+    cursor:pointer;
+}
+
+.toolbar input[type="color"]{
+    width:50px;
+    height:40px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:none;
+}
+
+.tool-btn{
+    border:none;
+    background:#00B4D8;
+    color:white;
+    padding:12px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.3s;
+    font-weight:500;
+}
+
+.tool-btn:hover{
+    background:#48CAE4;
+}
+
+.clear-btn{
+    border:none;
+    background:#ef233c;
+    color:white;
+    padding:12px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.clear-btn:hover{
+    background:#d90429;
+}
+
+.board-container{
+    background: white;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 15px 30px rgba(0,0,0,.25);
+    overflow:auto;
+}
+
+canvas{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:15px;
+    border:2px solid #ddd;
+}
+
+@media (max-width:768px){
+
+    .header{
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .title{
+        font-size: 1.5rem;
+    }
+
+    .toolbar{
+        justify-content: center;
+    }
+}
+
+</style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="header">
+
+            <div class="title">
+                Teacher Session {{ session_id }}
+            </div>
+
+            <a href="/dashboard"
+                class="back-btn">
+
+                Back
+
+            </a>
+
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <label>Brush Color</label>
+                <input
+                    type="color"
+                    id="colorPicker"
+                    value="#000000">
+            </div>
+
+            <div class="toolbar-group">
+                <label>Brush Size</label>
+                <select id="brushSize">
+                    <option value="2">Thin</option>
+                    <option value="4" selected>Normal</option>
+                    <option value="8">Medium</option>
+                    <option value="12">Thick</option>
+                </select>
+            </div>
+
+            <button 
+                class="tool-btn"
+                onclick="undoLast()">
+                ↶ Undo
+            </button>
+
+            <button 
+                class="tool-btn"
+                onclick="redoLast()">
+                ↷ Redo
+            </button>
+
+            <button
+                class="clear-btn"
+                onclick="clearBoard()">
+                🗑 Clear Board
+            </button>
+
+        </div>
+
+        <div class="board-container">
+
+            <canvas
+                id="board"
+                width="1000"
+                height="600">
+            </canvas>
+
+        </div>
+
+        </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+
+    const canvas = document.getElementById("board");
+    const ctx = canvas.getContext("2d");
+    const socket = io();
+    let history = [];
+    let redoStack = [];
+    
+    let currentColor = "#000000";
+
+    document
+        .getElementById("colorPicker")
+        .addEventListener("change", function(){
+
+            currentColor = this.value;
+
+            ctx.strokeStyle = currentColor;
+    });
+
+
+    let brushSize = 4;
+
+    document
+        .getElementById("brushSize")
+        .addEventListener("change", function(){
+
+            brushSize = parseInt(this.value);
+            ctx.lineWidth = brushSize;
+
+    });
+
+    socket.emit("join_session", {
+        session_id: {{ session_id }}
+    });
+
+    ctx.fillStyle = "red";
+    ctx.fillRect(50, 50, 100, 100);
+
+    let drawing = false;
+
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+
+    function clearBoard() {
+
+        history = [];
+        redoStack = [];
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+        socket.emit("clear_board", {
+            session_id: {{ session_id }}
+        });
+    }
+
+    function redrawCanvas(){
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        history.forEach(function(stroke){
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                stroke.x1,
+                stroke.y1
+            );
+
+            ctx.lineTo(
+                stroke.x2,
+                stroke.y2
+            );
+
+            ctx.strokeStyle = stroke.color;
+            ctx.lineWidth = stroke.size;
+
+            ctx.stroke();
+
+        });
+
+    }
+
+
+    function undoLast(){
+
+        if(history.length === 0){
+            return;
+        }
+
+        redoStack.push(
+            history.pop()
+        );
+
+        redrawCanvas();
+        socket.emit("board_update",{
+            session_id: {{ session_id }},
+            history: history
+        });
+
+    }
+
+    function redoLast(){
+
+        if(redoStack.length === 0){
+            return;
+        }
+
+        history.push(
+            redoStack.pop()
+        );
+
+        redrawCanvas();
+        socket.emit("board_update",{
+            session_id: {{ session_id }},
+            history: history
+        });
+    }
+
+
+    let lastX = 0;
+    let lastY = 0;
+
+    function getMousePos(e){
+
+        const rect = canvas.getBoundingClientRect();
+
+        return {
+            x: (e.clientX - rect.left) * (canvas.width / rect.width),
+            y: (e.clientY - rect.top) * (canvas.height / rect.height)
+        };
+    }
+
+
+    canvas.addEventListener("mousedown", (e) => {
+        drawing = true;
+        const pos = getMousePos(e);
+
+        lastX = pos.x;
+        lastY = pos.y;
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+    });
+
+    canvas.addEventListener("mouseup", () => {
+        drawing = false;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+        drawing = false;
+    });
+
+    canvas.addEventListener("mousemove", function(e) {
+
+        if (!drawing) {
+            return;
+        }
+        const pos = getMousePos(e);
+
+        let currentX = pos.x;
+        let currentY = pos.y;
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(currentX, currentY);
+        ctx.stroke();
+        history.push({
+            color: currentColor,
+            size: brushSize,
+            x1: lastX,
+            y1: lastY,
+            x2: currentX,
+            y2: currentY
+        });
+
+        redoStack = [];
+
+        socket.emit("draw", {
+            session_id: {{ session_id }},
+            color: currentColor,
+            size: brushSize,
+
+            x1: lastX,
+            y1: lastY,
+            x2: currentX,
+            y2: currentY
+        });
+
+        lastX = currentX;
+        lastY = currentY;
+    });
+
+    </script>
+
+</body>
+</html>
