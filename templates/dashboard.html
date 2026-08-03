@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Teacher Dashboard</title>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(
+        135deg,
+        #023047,
+        #006D77,
+        #00B4D8
+    );
+    color:white;
+}
+
+.container{
+    width:90%;
+    max-width:1400px;
+    margin:auto;
+    padding:40px 0;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:40px;
+}
+
+.header h1{
+    font-size:2rem;
+    font-weight:600;
+}
+
+.logout-btn{
+    text-decoration:none;
+    background:#ef233c;
+    color:white;
+    padding:12px 22px;
+    border-radius:10px;
+    transition:.3s;
+}
+
+.logout-btn:hover{
+    background:#d90429;
+}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:30px;
+}
+
+.card h2{
+    margin-bottom:20px;
+}
+
+input[type="text"]{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    font-size:15px;
+}
+
+.students-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:15px;
+    margin-top:20px;
+    margin-bottom:20px;
+}
+
+.student-card{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:rgba(255,255,255,0.08);
+    padding:15px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.student-card:hover{
+    background:rgba(255,255,255,0.15);
+}
+
+.create-btn{
+    border:none;
+    background:#00B4D8;
+    color:white;
+    padding:15px 30px;
+    border-radius:12px;
+    font-size:15px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.create-btn:hover{
+    background:#48CAE4;
+}
+
+.session-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:20px;
+}
+
+.session-card{
+    background:rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:20px;
+    transition:.3s;
+    cursor:pointer;
+}
+
+.session-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 15px 30px rgba(0,0,0,.25);
+    transform:translateY(-5px) scale(1.02);
+}
+
+.session-title{
+    font-size:1.15rem;
+    font-weight:600;
+    margin-bottom:15px;
+}
+
+.actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.open-btn{
+    text-decoration:none;
+    background:#00B4D8;
+    color:white;
+    padding:10px 18px;
+    border-radius:10px;
+}
+
+.delete-btn{
+    text-decoration:none;
+    background:#ef233c;
+    color:white;
+    padding:10px 18px;
+    border-radius:10px;
+}
+
+
+.student-badge{
+    background:rgba(255,255,255,0.12);
+    color:#d9f5ff;
+    padding:8px 12px;
+    border-radius:8px;
+    margin-bottom:15px;
+    font-size:14px;
+}
+
+.open-btn:hover,
+.delete-btn:hover{
+    opacity:.85;
+}
+
+@media (max-width:768px){
+
+    .header{
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
+    }
+
+    .header h1{
+        font-size:1.5rem;
+    }
+
+    .session-grid{
+        grid-template-columns:1fr;
+    }
+
+    .students-grid{
+        grid-template-columns:1fr;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .open-btn,
+    .delete-btn{
+        text-align:center;
+        width:100%;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>
+            Welcome, {{ current_user.username }}
+        </h1>
+
+        <a href="{{ url_for('logout') }}"
+            class="logout-btn">
+            Logout
+        </a>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Create New Session</h2>
+
+        <form method="POST" action="/create-session">
+
+            <input
+                type="text"
+                name="session_name"
+                placeholder="Enter Session Name"
+                required>
+
+            <h3 style="margin-top:20px;">
+                Select Students
+            </h3>
+
+            <div class="students-grid">
+
+                {% for student in students %}
+
+                <label class="student-card">
+
+                    <input
+                        type="checkbox"
+                        name="students"
+                        value="{{ student.username }}">
+
+                    {{ student.username }}
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+            <button
+                type="submit"
+                class="create-btn">
+
+                Create Session
+
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Your Sessions</h2>
+
+        <div class="session-grid">
+
+            {% for s in sessions %}
+
+            <div class="session-card">
+
+                <div class="session-title">
+                    {{ s.session_name }}
+                </div>
+
+                <div class="student-badge">
+          
+                    👨‍🎓 {{ session_students[s.id] | join(', ') }}
+                </div>
+
+                <div class="actions">
+
+                    <a href="/teacher/session/{{ s.id }}"
+                        class="open-btn">
+                        Open
+                    </a>
+
+                    <a href="/delete-session/{{ s.id }}"
+                        class="delete-btn"
+                        onclick="return confirm('Delete this session?')">
+                        Delete
+                    </a>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
