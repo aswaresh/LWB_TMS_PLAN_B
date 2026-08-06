@@ -1,33 +1,200 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:linear-gradient(
+        135deg,
+        #023047,
+        #006D77,
+        #00B4D8
+    );
+}
+
+.login-card{
+
+    width:400px;
+    max-width:90%;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(15px);
+
+    border:1px solid rgba(255,255,255,0.15);
+
+    border-radius:25px;
+
+    padding:40px;
+
+    color:white;
+
+    box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:10px;
+    font-size:3rem;
+}
+
+.login-card h2{
+    text-align:center;
+    margin-bottom:10px;
+    font-weight:600;
+}
+
+.subtitle{
+    text-align:center;
+    margin-bottom:30px;
+    opacity:0.8;
+    font-size:14px;
+}
+
+.input-group{
+    margin-bottom:20px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:14px;
+}
+
+.input-group input{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    font-size:14px;
+
+    outline:none;
+}
+
+.login-btn{
+
+    width:100%;
+
+    border:none;
+
+    background:#00B4D8;
+
+    color:white;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    font-size:16px;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.login-btn:hover{
+
+    background:#48CAE4;
+
+    transform:translateY(-2px);
+}
+
+.footer-text{
+    text-align:center;
+    margin-top:20px;
+    font-size:13px;
+    opacity:0.8;
+}
+
+</style>
+
 </head>
+
 <body>
 
-<h2>Login</h2>
+<div class="login-card">
 
-<form method="POST">
-    <input
-        name="username"
-        placeholder="Username"
-        required>
+    <div class="logo">
+        🎓
+    </div>
 
-    <br><br>
+    <h2>Live Whiteboard Portal</h2>
 
-    <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        required>
+    <p class="subtitle">
+        Sign in to continue
+    </p>
 
-    <br><br>
+    <form method="POST">
 
-    <button type="submit">
-        Login
-    </button>
+        <div class="input-group">
 
-</form>
+            <label>Username</label>
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Enter username"
+                required>
+
+        </div>
+
+        <div class="input-group">
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                required>
+
+        </div>
+
+        <button
+            type="submit"
+            class="login-btn">
+
+            Login
+
+        </button>
+
+    </form>
+
+    <div class="footer-text">
+
+        Interactive Whiteboard System
+
+    </div>
+
+</div>
 
 </body>
 </html>
