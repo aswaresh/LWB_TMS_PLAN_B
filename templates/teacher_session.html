@@ -232,7 +232,9 @@ canvas{
 
     const canvas = document.getElementById("board");
     const ctx = canvas.getContext("2d");
-    const socket = io();
+    const socket = io({
+        transports: ["polling"]
+    });
     let history = [];
     let redoStack = [];
     
