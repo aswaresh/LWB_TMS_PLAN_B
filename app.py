@@ -8,18 +8,21 @@ from flask_login import (
     logout_user,
     current_user
 )
+from dotenv import load_dotenv
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import (
     SocketIO,
     emit,
     join_room
 )
+load_dotenv()
 app = Flask(__name__)
 socketio = SocketIO(app)
 
 
-app.config['SECRET_KEY'] = 'change-this-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///whiteboard.db'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -43,7 +46,11 @@ class User(UserMixin, db.Model):
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_name = db.Column(db.String(100))
-    teacher_id = db.Column(db.Integer)
+    teacher_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id'),
+        nullable=False
+    )
 
 class SessionStudent(db.Model):
 
@@ -54,11 +61,13 @@ class SessionStudent(db.Model):
 
     session_id = db.Column(
         db.Integer,
+        db.ForeignKey('session.id'),
         nullable=False
     )
 
     student_id = db.Column(
         db.Integer,
+        db.ForeignKey('user.id'),
         nullable=False
     )
 
