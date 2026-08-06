@@ -5,5 +5,6 @@ Flask-SocketIO
 Werkzeug
 psycopg2-binary
 python-dotenv
-eventlet
 gunicorn
+gevent
+gevent-websocket
