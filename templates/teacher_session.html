@@ -430,7 +430,28 @@ canvas{
         lastX = currentX;
         lastY = currentY;
     });
+        
+    socket.on("draw", function(data){
 
+        ctx.beginPath();
+
+        ctx.moveTo(
+            data.x1,
+            data.y1
+        );
+
+        ctx.lineTo(
+            data.x2,
+            data.y2
+        );
+
+        ctx.strokeStyle = data.color;
+        ctx.lineWidth = data.size;
+        ctx.lineCap = "round";
+
+        ctx.stroke();
+
+    });
     </script>
 
 </body>
