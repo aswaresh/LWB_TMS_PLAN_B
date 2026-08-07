@@ -339,7 +339,16 @@ canvas{
         });
 
     }
+        
+setInterval(function(){
 
+    socket.emit("save_board", {
+        session_id: {{ session_id }},
+        history: history
+    });
+
+}, 5000);
+        
     function redoLast(){
 
         if(redoStack.length === 0){
