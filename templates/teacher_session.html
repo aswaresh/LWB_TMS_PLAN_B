@@ -390,7 +390,8 @@ canvas{
     canvas.addEventListener("mouseleave", () => {
         drawing = false;
     });
-
+        
+    let lastEmit = 0;
     canvas.addEventListener("mousemove", function(e) {
 
         if (!drawing) {
@@ -415,7 +416,8 @@ canvas{
         });
 
         redoStack = [];
-
+const now = Date.now();
+if(now - lastEmit > 20){
         socket.emit("draw", {
             session_id: {{ session_id }},
             color: currentColor,
@@ -426,7 +428,8 @@ canvas{
             x2: currentX,
             y2: currentY
         });
-
+        lastEmit = now;
+}
         lastX = currentX;
         lastY = currentY;
     });
