@@ -206,6 +206,42 @@ socket.on("clear_board", function() {
 
 });
 
+
+socket.on("load_board", function(history){
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    history.forEach(function(stroke){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            stroke.x1,
+            stroke.y1
+        );
+
+        ctx.lineTo(
+            stroke.x2,
+            stroke.y2
+        );
+
+        ctx.strokeStyle =
+            stroke.color;
+
+        ctx.lineWidth =
+            stroke.size;
+
+        ctx.stroke();
+
+    });
+
+});
+    
 socket.on("board_update", function(data){
 
     ctx.clearRect(
