@@ -393,7 +393,7 @@ from flask_socketio import emit
 
 @socketio.on("draw")
 def handle_draw(data):
-
+    print(data)
     session_id = data["session_id"]
 
     board = WhiteboardData.query.filter_by(
