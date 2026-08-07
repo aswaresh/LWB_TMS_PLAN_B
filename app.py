@@ -393,34 +393,8 @@ from flask_socketio import emit
 
 @socketio.on("draw")
 def handle_draw(data):
-    print(data)
-    session_id = data["session_id"]
 
-    board = WhiteboardData.query.filter_by(
-        session_id=session_id
-    ).first()
-
-    if not board:
-        board = WhiteboardData(
-            session_id=session_id,
-            board_json="[]"
-        )
-        db.session.add(board)
-        db.session.commit()
-
-    history = json.loads(
-        board.board_json
-    )
-
-    history.append(data)
-
-    board.board_json = json.dumps(
-        history
-    )
-
-    db.session.commit()
-
-    room = f"session_{session_id}"
+    room = f"session_{data['session_id']}"
 
     emit(
         "draw",
@@ -490,7 +464,27 @@ def handle_board_update(data):
         room=room,
         include_self=False
     )
+@socketio.on("save_board")
+def save_board(data):
 
+    session_id = data["session_id"]
+
+    board = WhiteboardData.query.filter_by(
+        session_id=session_id
+    ).first()
+
+    if not board:
+        board = WhiteboardData(
+            session_id=session_id
+        )
+
+        db.session.add(board)
+
+    board.board_json = json.dumps(
+        data["history"]
+    )
+
+    db.session.commit()
 # ----------------------------------
 # RUN
 # ----------------------------------
