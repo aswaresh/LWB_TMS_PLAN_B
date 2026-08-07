@@ -450,8 +450,35 @@ canvas{
         ctx.lineCap = "round";
 
         ctx.stroke();
+    });
+
+    socket.on("load_board", function(history){
+
+        history.forEach(function(stroke){
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                stroke.x1,
+                stroke.y1
+            );
+
+            ctx.lineTo(
+                stroke.x2,
+                stroke.y2
+            );
+
+            ctx.strokeStyle =
+                stroke.color;
+
+            ctx.lineWidth =
+                stroke.size;
+
+            ctx.stroke();
+        });
 
     });
+        
     </script>
 
 </body>
