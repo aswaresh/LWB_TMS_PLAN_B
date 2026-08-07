@@ -164,11 +164,11 @@ canvas{
 const socket = io({
     transports: ["polling"]
 });
-
-socket.emit("join_session", {
-    session_id: {{ session_id }}
+socket.on("connect", () => {
+    socket.emit("join_session", {
+        session_id: {{ session_id }}
+    });
 });
-
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
