@@ -10,6 +10,8 @@ from flask_login import (
 )
 from dotenv import load_dotenv
 import os
+import json
+from sqlalchemy import Text
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import (
     SocketIO,
@@ -78,6 +80,25 @@ class SessionStudent(db.Model):
         db.ForeignKey('user.id'),
         nullable=False
     )
+
+class WhiteboardData(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    session_id = db.Column(
+        db.Integer,
+        unique=True,
+        nullable=False
+    )
+
+    board_json = db.Column(
+        Text,
+        default="[]"
+    )
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -369,18 +390,43 @@ def logout():
 
 from flask_socketio import emit
 
-@socketio.on('draw')
+@socketio.on("draw")
 def handle_draw(data):
 
-    room = f"session_{data['session_id']}"
+    session_id = data["session_id"]
+
+    board = WhiteboardData.query.filter_by(
+        session_id=session_id
+    ).first()
+
+    if not board:
+        board = WhiteboardData(
+            session_id=session_id,
+            board_json="[]"
+        )
+        db.session.add(board)
+        db.session.commit()
+
+    history = json.loads(
+        board.board_json
+    )
+
+    history.append(data)
+
+    board.board_json = json.dumps(
+        history
+    )
+
+    db.session.commit()
+
+    room = f"session_{session_id}"
 
     emit(
-        'draw',
+        "draw",
         data,
         room=room,
         include_self=False
     )
-
 
 @socketio.on('clear_board')
 def handle_clear(data):
@@ -393,14 +439,31 @@ def handle_clear(data):
         include_self=False
     )
 
-@socketio.on('join_session')
+@socketio.on("join_session")
 def handle_join(data):
 
-    room = f"session_{data['session_id']}"
+    session_id = data["session_id"]
+
+    room = f"session_{session_id}"
 
     join_room(room)
 
-    print("Joined:", room)
+    board = WhiteboardData.query.filter_by(
+        session_id=session_id
+    ).first()
+
+    history = []
+
+    if board:
+        history = json.loads(
+            board.board_json
+        )
+
+    emit(
+        "load_board",
+        history,
+        room=request.sid
+    )
 
 
 @socketio.on('board_update')
