@@ -260,11 +260,11 @@ canvas{
             ctx.lineWidth = brushSize;
 
     });
-
+socket.on("connect", () => {
     socket.emit("join_session", {
         session_id: {{ session_id }}
     });
-
+});
     ctx.fillStyle = "red";
     ctx.fillRect(50, 50, 100, 100);
 
@@ -435,8 +435,7 @@ setInterval(function(){
             x2: currentX,
             y2: currentY
         });
-        lastEmit = now;
-}
+
         lastX = currentX;
         lastY = currentY;
     });
