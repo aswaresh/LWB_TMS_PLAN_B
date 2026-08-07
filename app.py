@@ -11,6 +11,7 @@ from flask_login import (
 from dotenv import load_dotenv
 import os
 import json
+from flask import request
 from sqlalchemy import Text
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_socketio import (
@@ -428,13 +429,25 @@ def handle_draw(data):
         include_self=False
     )
 
-@socketio.on('clear_board')
+@socketio.on("clear_board")
 def handle_clear(data):
 
-    room = f"session_{data['session_id']}"
+    session_id = data["session_id"]
+
+    board = WhiteboardData.query.filter_by(
+        session_id=session_id
+    ).first()
+
+    if board:
+
+        board.board_json = "[]"
+
+        db.session.commit()
+
+    room = f"session_{session_id}"
 
     emit(
-        'clear_board',
+        "clear_board",
         room=room,
         include_self=False
     )
