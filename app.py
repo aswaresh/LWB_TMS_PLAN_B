@@ -403,6 +403,26 @@ def handle_draw(data):
         include_self=False
     )
 
+
+@socketio.on("draw_batch")
+def handle_draw_batch(data):
+
+    if len(data) == 0:
+        return
+
+    session_id = data[0]["session_id"]
+
+    room = f"session_{session_id}"
+
+    emit(
+        "draw_batch",
+        data,
+        room=room,
+        include_self=False
+    )
+
+
+
 @socketio.on("clear_board")
 def handle_clear(data):
 
