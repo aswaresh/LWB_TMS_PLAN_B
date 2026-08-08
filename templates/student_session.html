@@ -161,9 +161,8 @@ canvas{
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-const socket = io({
-    transports: ["polling"]
-});
+const socket = io();
+    
 socket.on("connect", () => {
     socket.emit("join_session", {
         session_id: {{ session_id }}
