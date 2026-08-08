@@ -267,6 +267,7 @@ socket.on("connect", () => {
     ctx.fillRect(50, 50, 100, 100);
 
     let drawing = false;
+    let currentStroke = [];
 
     ctx.strokeStyle = "black";
     ctx.lineWidth = 3;
@@ -392,31 +393,20 @@ setInterval(function(){
 
     canvas.addEventListener("mouseup", () => {
         drawing = false;
+        socket.emit("stroke_complete", {
+            session_id: {{ session_id }},
+            color: currentColor,
+            size: brushSize,
+            points: currentStroke
+        });
     });
 
     canvas.addEventListener("mouseleave", () => {
         drawing = false;
+        currentStroke = [];
     });
         
-    let strokeBuffer = [];
-
-        
-    setInterval(function(){
-
-        if(strokeBuffer.length === 0){
-            return;
-        }
-
-        socket.emit(
-            "draw_batch",
-            strokeBuffer
-        );
-
-        strokeBuffer = [];
-
-    }, 20);
-
-        
+         
     canvas.addEventListener("mousemove", function(e) {
 
         if (!drawing) {
@@ -441,15 +431,9 @@ setInterval(function(){
         });
 
         redoStack = [];
-        strokeBuffer.push({
-            session_id: {{ session_id }},
-            color: currentColor,
-            size: brushSize,
-
-            x1: lastX,
-            y1: lastY,
-            x2: currentX,
-            y2: currentY
+        currentStroke.push({
+            x: currentX,
+            y: currentY
         });
 
         lastX = currentX;
