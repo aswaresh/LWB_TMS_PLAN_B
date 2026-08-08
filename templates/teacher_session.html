@@ -232,9 +232,7 @@ canvas{
 
     const canvas = document.getElementById("board");
     const ctx = canvas.getContext("2d");
-    const socket = io({
-        transports: ["polling"]
-    });
+    const socket = io();
     let history = [];
     let redoStack = [];
     
@@ -401,6 +399,8 @@ setInterval(function(){
     });
         
     let strokeBuffer = [];
+
+        
     setInterval(function(){
 
         if(strokeBuffer.length === 0){
@@ -414,7 +414,9 @@ setInterval(function(){
 
         strokeBuffer = [];
 
-    }, 50);
+    }, 20);
+
+        
     canvas.addEventListener("mousemove", function(e) {
 
         if (!drawing) {
