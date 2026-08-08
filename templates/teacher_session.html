@@ -453,7 +453,7 @@ setInterval(function(){
         lastX = currentX;
         lastY = currentY;
     });
-        
+ /*       
     socket.on("draw", function(data){
 
         ctx.beginPath();
@@ -474,7 +474,7 @@ setInterval(function(){
 
         ctx.stroke();
     });
-
+*/
     socket.on("load_board", function(history){
 
         history.forEach(function(stroke){
