@@ -421,7 +421,17 @@ def handle_draw_batch(data):
         include_self=False
     )
 
+@socketio.on("stroke_complete")
+def handle_stroke(data):
 
+    room = f"session_{data['session_id']}"
+
+    emit(
+        "stroke_complete",
+        data,
+        room=room,
+        include_self=False
+    )
 
 @socketio.on("clear_board")
 def handle_clear(data):
