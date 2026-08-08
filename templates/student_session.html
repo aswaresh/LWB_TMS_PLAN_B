@@ -206,7 +206,34 @@ socket.on("clear_board", function() {
 
 });
 
+socket.on("draw_batch", function(strokes){
 
+    strokes.forEach(function(data){
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            data.x1,
+            data.y1
+        );
+
+        ctx.lineTo(
+            data.x2,
+            data.y2
+        );
+
+        ctx.strokeStyle = data.color;
+        ctx.lineWidth = data.size;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.stroke();
+
+    });
+
+});
+
+    
 socket.on("load_board", function(history){
 
     ctx.clearRect(
