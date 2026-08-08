@@ -400,7 +400,21 @@ setInterval(function(){
         drawing = false;
     });
         
+    let strokeBuffer = [];
+    setInterval(function(){
 
+        if(strokeBuffer.length === 0){
+            return;
+        }
+
+        socket.emit(
+            "draw_batch",
+            strokeBuffer
+        );
+
+        strokeBuffer = [];
+
+    }, 50);
     canvas.addEventListener("mousemove", function(e) {
 
         if (!drawing) {
@@ -425,7 +439,7 @@ setInterval(function(){
         });
 
         redoStack = [];
-        socket.emit("draw", {
+        strokeBuffer.push({
             session_id: {{ session_id }},
             color: currentColor,
             size: brushSize,
